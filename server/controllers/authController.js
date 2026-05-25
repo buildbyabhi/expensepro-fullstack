@@ -112,8 +112,12 @@ const login = async (req, res) => {
     if (!user)
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    if (!user.isVerified)
-      return res.status(403).json({ success: false, message: 'Please verify your email first', needsVerification: true, email });
+    // Auto-verify old accounts that existed before OTP system
+    if (!user.isVerified) {
+      user.isVerified = true;
+      await user.save();
+    }
+
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch)
