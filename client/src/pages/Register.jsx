@@ -22,11 +22,20 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await register(name, email, password);
-      toast.success('Account created! Welcome to ExpensePro 🎉');
-      navigate('/dashboard');
+      const { data } = await import('../context/AuthContext').then(m => ({ data: null, mod: m }));
+      // Call register API directly
+      const BASE = import.meta.env.VITE_API_URL || '/api';
+      const res = await fetch(`${BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      toast.success('OTP sent to your email! 📧');
+      navigate('/verify-email', { state: { email } });
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Registration failed');
+      toast.error(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

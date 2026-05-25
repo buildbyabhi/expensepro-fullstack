@@ -1,101 +1,134 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const jwt  = require('jsonwebtoken');
+const { generateOTP, sendOTPEmail } = require('../utils/emailService');
 
-// Generate JWT token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '30d',
-  });
-};
+const generateToken = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' });
 
-// @desc    Register new user
-// @route   POST /api/auth/register
-// @access  Public
+const userPayload = (user) => ({
+  id: user._id, name: user.name, email: user.email,
+  avatar: user.avatar, currency: user.currency, isAdmin: user.isAdmin,
+});
+
+// ── Register ─────────────────────────────────────────────────────────────────
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
+    if (!name || !email || !password)
       return res.status(400).json({ success: false, message: 'Please provide all fields' });
-    }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existing = await User.findOne({ email });
+    if (existing && existing.isVerified)
       return res.status(400).json({ success: false, message: 'Email already registered' });
+
+    const otp       = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+    if (existing && !existing.isVerified) {
+      // Resend OTP to unverified user
+      existing.otp       = otp;
+      existing.otpExpiry = otpExpiry;
+      existing.name      = name;
+      await existing.save();
+    } else {
+      await User.create({ name, email, password, otp, otpExpiry });
     }
 
-    const user = await User.create({ name, email, password });
-    const token = generateToken(user._id);
+    await sendOTPEmail(email, name, otp);
 
     res.status(201).json({
       success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        currency: user.currency,
-      },
+      message: 'OTP sent to your email. Please verify to continue.',
+      email,
     });
+  } catch (error) {
+    console.error('Register error:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── Verify OTP ────────────────────────────────────────────────────────────────
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp)
+      return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+
+    const user = await User.findOne({ email }).select('+otp +otpExpiry');
+    if (!user)
+      return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (user.isVerified)
+      return res.status(400).json({ success: false, message: 'Email already verified' });
+
+    if (!user.otp || user.otp !== otp)
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+
+    if (user.otpExpiry < new Date())
+      return res.status(400).json({ success: false, message: 'OTP expired. Please register again.' });
+
+    user.isVerified = true;
+    user.otp        = undefined;
+    user.otpExpiry  = undefined;
+    await user.save();
+
+    const token = generateToken(user._id);
+    res.status(200).json({ success: true, token, user: userPayload(user) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+// ── Resend OTP ────────────────────────────────────────────────────────────────
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).select('+otp +otpExpiry');
+    if (!user)
+      return res.status(404).json({ success: false, message: 'User not found' });
+    if (user.isVerified)
+      return res.status(400).json({ success: false, message: 'Email already verified' });
+
+    const otp = generateOTP();
+    user.otp       = otp;
+    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+    await sendOTPEmail(email, user.name, otp);
+
+    res.json({ success: true, message: 'New OTP sent to your email' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── Login ─────────────────────────────────────────────────────────────────────
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
-    }
 
     const user = await User.findOne({ email }).select('+password');
-    if (!user) {
+    if (!user)
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
+
+    if (!user.isVerified)
+      return res.status(403).json({ success: false, message: 'Please verify your email first', needsVerification: true, email });
 
     const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
+    if (!isMatch)
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
 
     const token = generateToken(user._id);
-
-    res.status(200).json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        currency: user.currency,
-      },
-    });
+    res.status(200).json({ success: true, token, user: userPayload(user) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/me
-// @access  Private
+// ── Get Me ────────────────────────────────────────────────────────────────────
 const getMe = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: {
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-      avatar: req.user.avatar,
-      currency: req.user.currency,
-    },
-  });
+  res.status(200).json({ success: true, user: userPayload(req.user) });
 };
 
-module.exports = { register, login, getMe };
+module.exports = { register, verifyOTP, resendOTP, login, getMe };

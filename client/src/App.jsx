@@ -5,6 +5,8 @@ import { TransactionProvider } from './context/TransactionContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import VerifyEmail from './pages/VerifyEmail';
+import AdminPanel from './pages/AdminPanel';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -39,9 +41,14 @@ const AppRoutes = () => {
           path="/register"
           element={<PublicRoute><Register /></PublicRoute>}
         />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/dashboard"
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+        />
+        <Route
+          path="/admin"
+          element={<ProtectedRoute><AdminPanel /></ProtectedRoute>}
         />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

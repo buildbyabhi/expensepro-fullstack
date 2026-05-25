@@ -3,8 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const authRoutes = require('./routes/auth');
+const authRoutes        = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
+const adminRoutes       = require('./routes/admin');
 
 const app = express();
 
@@ -28,8 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
+app.use('/api/auth',         authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/admin',        adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

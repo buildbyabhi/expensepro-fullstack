@@ -22,17 +22,16 @@ const UserSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,
     },
-    avatar: {
-      type: String,
-      default: '',
-    },
-    currency: {
-      type: String,
-      default: 'INR',
-    },
+    avatar: { type: String, default: '' },
+    currency: { type: String, default: 'INR' },
+    isVerified: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
+    otp: { type: String, select: false },
+    otpExpiry: { type: Date, select: false },
   },
   { timestamps: true }
 );
+
 
 // Hash password before save
 UserSchema.pre('save', async function () {

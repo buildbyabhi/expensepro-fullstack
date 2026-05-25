@@ -1535,7 +1535,266 @@ body {
 .text-income { color: var(--income); }
 
 
-@media (max-width: 1024px) {
+/* ═══════════════════════════════════════════════════
+   OTP VERIFICATION
+   ═══════════════════════════════════════════════════ */
+.otp-wrapper {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+.otp-input {
+  width: 52px; height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  caret-color: var(--accent);
+}
+
+.otp-input:focus {
+  border-color: var(--accent);
+  background: rgba(129,140,248,0.1);
+  box-shadow: 0 0 0 4px rgba(129,140,248,0.15);
+  transform: scale(1.05);
+}
+
+.otp-input--filled {
+  border-color: rgba(129,140,248,0.5);
+  background: rgba(129,140,248,0.08);
+}
+
+.otp-resend {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.otp-timer {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.otp-resend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.otp-resend-btn:hover { color: #a78bfa; }
+
+/* ═══════════════════════════════════════════════════
+   ADMIN PANEL
+   ═══════════════════════════════════════════════════ */
+.admin-page {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 0% 0%, rgba(129,140,248,0.08) 0%, transparent 40%), var(--bg-base);
+}
+
+.admin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.admin-header {
+  background: rgba(8,8,18,0.9);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  padding: 0 32px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-header-left { display: flex; align-items: center; gap: 14px; }
+
+.admin-logo {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.admin-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+.admin-subtitle { font-size: 12px; color: var(--text-muted); }
+
+.admin-header-actions { display: flex; gap: 10px; }
+
+.admin-refresh-btn, .admin-logout-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-refresh-btn {
+  background: rgba(129,140,248,0.1);
+  border: 1px solid rgba(129,140,248,0.3);
+  color: var(--accent);
+}
+.admin-refresh-btn:hover { background: rgba(129,140,248,0.2); }
+
+.admin-logout-btn {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--expense);
+}
+.admin-logout-btn:hover { background: rgba(239,68,68,0.2); }
+
+.admin-body { padding: 32px; display: flex; flex-direction: column; gap: 28px; max-width: 1300px; margin: 0 auto; }
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.admin-stat-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  backdrop-filter: blur(20px);
+  transition: var(--transition);
+}
+
+.admin-stat-card:hover { transform: translateY(-3px); }
+.admin-stat-card--accent { border-color: rgba(129,140,248,0.25); }
+.admin-stat-card--income { border-color: rgba(34,197,94,0.25); }
+.admin-stat-card--expense { border-color: rgba(239,68,68,0.25); }
+
+.admin-stat-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+
+.admin-stat-card--accent .admin-stat-icon { background: rgba(129,140,248,0.15); color: var(--accent); }
+.admin-stat-card--income .admin-stat-icon { background: rgba(34,197,94,0.15); color: var(--income); }
+.admin-stat-card--expense .admin-stat-icon { background: rgba(239,68,68,0.15); color: var(--expense); }
+
+.admin-stat-value { font-size: 36px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+.admin-stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.admin-table-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+.admin-table-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-table-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-table-wrap { overflow-x: auto; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table thead { background: rgba(129,140,248,0.06); }
+
+.admin-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+.admin-td-num { color: var(--text-muted); font-size: 12px; }
+.admin-td-name { color: var(--text-primary) !important; font-weight: 600; }
+.admin-td-email { font-family: monospace; font-size: 12px; }
+.admin-td-center { text-align: center; font-weight: 600; color: var(--text-primary) !important; }
+.admin-td-date { font-size: 12px; color: var(--text-muted) !important; }
+
+.admin-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.admin-badge--verified { background: rgba(34,197,94,0.15); color: var(--income); }
+.admin-badge--unverified { background: rgba(239,68,68,0.12); color: #f87171; }
+
+.admin-delete-btn {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-sm);
+  color: var(--expense);
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  transition: var(--transition);
+}
+.admin-delete-btn:hover:not(:disabled) { background: rgba(239,68,68,0.25); transform: scale(1.05); }
+.admin-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-header { padding: 0 16px; }
+  .admin-body { padding: 16px; }
+}
+
+@media (max-width: 1038px) {
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
