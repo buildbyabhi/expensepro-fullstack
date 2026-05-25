@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TransactionProvider } from './context/TransactionContext';
 import Login from './pages/Login';
@@ -75,6 +76,7 @@ function App() {
             error: { iconTheme: { primary: '#ef4444', secondary: '#1e1e3a' } },
           }}
         />
+        <Analytics />
       </AuthProvider>
     </BrowserRouter>
   );
