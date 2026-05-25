@@ -4,6 +4,7 @@ import ExpenseForm from '../components/ExpenseForm';
 import TransactionList from '../components/TransactionList';
 import ChartSection from '../components/ChartSection';
 import ImportExport from '../components/ImportExport';
+import BudgetTracker from '../components/BudgetTracker';
 import { useTransactions } from '../context/TransactionContext';
 
 const Dashboard = () => {
@@ -34,9 +35,10 @@ const Dashboard = () => {
               <ImportExport />
             </div>
 
-            {/* Right Column: Charts */}
+            {/* Right Column: Charts + Budget */}
             <div className="dashboard-right">
               <ChartSection />
+              <BudgetTracker />
             </div>
           </div>
         </div>

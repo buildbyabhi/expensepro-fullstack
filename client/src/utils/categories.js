@@ -12,6 +12,7 @@ export const CATEGORIES = {
     { name: 'Groceries', icon: '🛒', color: '#84cc16' },
     { name: 'Rent & Housing', icon: '🏠', color: '#8b5cf6' },
     { name: 'EMI & Loans', icon: '🏦', color: '#64748b' },
+    { name: 'Pocket Money', icon: '👛', color: '#f59e0b' },
     { name: 'Other', icon: '📦', color: '#94a3b8' },
   ],
   income: [
@@ -21,6 +22,7 @@ export const CATEGORIES = {
     { name: 'Investment', icon: '📈', color: '#34d399' },
     { name: 'Gift', icon: '🎁', color: '#6ee7b7' },
     { name: 'Bonus', icon: '⭐', color: '#a7f3d0' },
+    { name: 'Pocket Money', icon: '👛', color: '#f59e0b' },
     { name: 'Other', icon: '💰', color: '#94a3b8' },
   ],
 };

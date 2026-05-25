@@ -1536,7 +1536,228 @@ body {
 
 
 /* ═══════════════════════════════════════════════════
+   BUDGET TRACKER
+   ═══════════════════════════════════════════════════ */
+.budget-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-card);
+  animation: slideUp 0.4s ease 0.3s both;
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.budget-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.budget-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(129,140,248,0.15);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.budget-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.budget-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.budget-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+.budget-select:focus { border-color: var(--accent); }
+
+.budget-edit-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(129,140,248,0.3);
+  background: rgba(129,140,248,0.1);
+  color: var(--accent);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.budget-edit-btn:hover { background: rgba(129,140,248,0.2); }
+
+.budget-save-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--income), #16a34a);
+  color: white;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.budget-cancel-btn {
+  display: flex; align-items: center;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.budget-total-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.budget-input-row { display: flex; flex-direction: column; gap: 8px; }
+.budget-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.budget-input { font-size: 14px !important; padding: 10px 14px !important; }
+
+.budget-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.budget-amounts { display: flex; align-items: baseline; gap: 2px; margin-top: 4px; }
+.budget-spent { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.budget-over { color: var(--expense) !important; }
+.budget-slash { color: var(--text-muted); font-size: 16px; }
+.budget-limit { font-size: 14px; color: var(--text-secondary); }
+
+.budget-alert {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--expense);
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+}
+
+.budget-remaining {
+  font-size: 13px;
+  color: var(--income);
+  font-weight: 600;
+  background: rgba(34,197,94,0.1);
+  padding: 4px 12px;
+  border-radius: 99px;
+}
+
+.budget-bar-bg {
+  height: 8px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+.budget-bar-ok   { background: linear-gradient(90deg, var(--income), #34d399); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+.budget-bar-warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+.budget-bar-over { background: linear-gradient(90deg, var(--expense), #f87171); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+
+.budget-pct { font-size: 11px; color: var(--text-muted); text-align: right; }
+
+.budget-cat-title {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.budget-cat-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+
+.budget-cat-item { display: flex; flex-direction: column; gap: 5px; }
+
+.budget-cat-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budget-cat-icon { font-size: 16px; width: 22px; }
+.budget-cat-name { font-size: 13px; color: var(--text-secondary); flex: 1; }
+.budget-cat-spent { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.budget-cat-limit { color: var(--text-muted); font-weight: 400; }
+
+.budget-cat-input {
+  width: 90px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 4px 8px;
+  outline: none;
+  transition: var(--transition);
+  text-align: right;
+}
+.budget-cat-input:focus { border-color: var(--accent); }
+
+.budget-cat-bar-bg {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-left: 30px;
+}
+
+.budget-cat-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.budget-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ═══════════════════════════════════════════════════
    OTP VERIFICATION
+
    ═══════════════════════════════════════════════════ */
 .otp-wrapper {
   display: flex;
