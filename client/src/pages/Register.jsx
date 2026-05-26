@@ -22,8 +22,6 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const { data } = await import('../context/AuthContext').then(m => ({ data: null, mod: m }));
-      // Call register API directly
       const BASE = import.meta.env.VITE_API_URL || '/api';
       const res = await fetch(`${BASE}/auth/register`, {
         method: 'POST',
@@ -32,8 +30,14 @@ const Register = () => {
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
-      toast.success('OTP sent to your email! 📧');
-      navigate('/verify-email', { state: { email } });
+      
+      // Auto-login: Save token and reload auth state
+      localStorage.setItem('expense_token', json.token);
+      toast.success('Account created! Welcome to XpensePro 🎉');
+      
+      // Navigate to dashboard and refresh page or context
+      navigate('/dashboard');
+      window.location.reload();
     } catch (err) {
       toast.error(err.message || 'Registration failed');
     } finally {

@@ -17,29 +17,35 @@ const register = async (req, res) => {
     if (!name || !email || !password)
       return res.status(400).json({ success: false, message: 'Please provide all fields' });
 
-    const existing = await User.findOne({ email });
-    if (existing && existing.isVerified)
+    let user = await User.findOne({ email });
+    if (user && user.isVerified)
       return res.status(400).json({ success: false, message: 'Email already registered' });
 
-    const otp       = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
-
-    if (existing && !existing.isVerified) {
-      // Resend OTP to unverified user
-      existing.otp       = otp;
-      existing.otpExpiry = otpExpiry;
-      existing.name      = name;
-      await existing.save();
+    if (user && !user.isVerified) {
+      // If user exists but was not verified, verify them now and update password/name
+      user.name = name;
+      user.password = password;
+      user.isVerified = true;
+      user.otp = undefined;
+      user.otpExpiry = undefined;
+      await user.save();
     } else {
-      await User.create({ name, email, password, otp, otpExpiry });
+      // Create a brand new verified user
+      user = await User.create({
+        name,
+        email,
+        password,
+        isVerified: true,
+      });
     }
 
-    await sendOTPEmail(email, name, otp);
+    const token = generateToken(user._id);
 
     res.status(201).json({
       success: true,
-      message: 'OTP sent to your email. Please verify to continue.',
-      email,
+      message: 'Registration successful!',
+      token,
+      user: userPayload(user),
     });
   } catch (error) {
     console.error('Register error:', error.message);
