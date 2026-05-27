@@ -1,13 +1,45 @@
 const Transaction = require('../models/Transaction');
 const multer      = require('multer');
-let pdfParse = require('pdf-parse');
-if (typeof pdfParse !== 'function') {
-  if (pdfParse.default && typeof pdfParse.default === 'function') {
-    pdfParse = pdfParse.default;
-  } else if (pdfParse.pdfParse && typeof pdfParse.pdfParse === 'function') {
-    pdfParse = pdfParse.pdfParse;
-  }
+
+let pdfParse;
+try {
+  pdfParse = require('pdf-parse');
+} catch (e) {
+  console.error("pdf-parse require error:", e.message);
 }
+
+// Bulletproof execution helper to bypass dynamic runtime module packaging differences
+const executePDFParse = async (buffer) => {
+  if (!pdfParse) {
+    throw new Error("PDF parser library is not successfully loaded on the server");
+  }
+
+  // Case 1: Direct function export
+  if (typeof pdfParse === 'function') {
+    return await pdfParse(buffer);
+  }
+
+  // Case 2: ES6 Default export
+  if (pdfParse.default && typeof pdfParse.default === 'function') {
+    return await pdfParse.default(buffer);
+  }
+
+  // Case 3: Property named export
+  if (pdfParse.pdfParse && typeof pdfParse.pdfParse === 'function') {
+    return await pdfParse.pdfParse(buffer);
+  }
+
+  // Case 4: Deep key resolution fallback
+  const keys = Object.keys(pdfParse);
+  for (const key of keys) {
+    if (typeof pdfParse[key] === 'function') {
+      console.log(`Dynamic lookup found PDF parser function under key: ${key}`);
+      return await pdfParse[key](buffer);
+    }
+  }
+
+  throw new Error("Unable to locate a valid parsing function in the loaded pdf-parse module");
+};
 
 // Multer — memory storage (no disk writes)
 const upload = multer({
@@ -28,9 +60,6 @@ const VALID_CATEGORIES = [
 
 // ─── Parse a raw PDF text line into a transaction object ─────────────────────
 const parseLineToTransaction = (line) => {
-  // Expected row format from our exported PDF (autotable):
-  // "25/05/2026  Monthly Salary  Income  Salary  -  +₹50,000"
-  // Try to extract amount first
   const amountMatch = line.match(/([+-])[₹]?([\d,]+(?:\.\d+)?)/);
   if (!amountMatch) return null;
 
@@ -38,7 +67,6 @@ const parseLineToTransaction = (line) => {
   const amount = parseFloat(amountMatch[2].replace(/,/g, ''));
   if (!amount || amount <= 0) return null;
 
-  // Extract date
   const dateMatch = line.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   let date = new Date();
   if (dateMatch) {
@@ -46,13 +74,11 @@ const parseLineToTransaction = (line) => {
     if (isNaN(date.getTime())) date = new Date();
   }
 
-  // Extract category
   let category = 'Other';
   for (const cat of VALID_CATEGORIES) {
     if (line.includes(cat)) { category = cat; break; }
   }
 
-  // Title: take text between date and type keyword, cleaned
   let title = line
     .replace(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/, '')
     .replace(/[+-][₹]?[\d,]+(?:\.\d+)?/, '')
@@ -79,12 +105,12 @@ const importFromPDF = [
         return res.status(400).json({ success: false, message: 'Please upload a PDF file' });
       }
 
-      const pdfData = await pdfParse(req.file.buffer);
+      // Execute pdf-parse via our safe bulletproof wrapper
+      const pdfData = await executePDFParse(req.file.buffer);
       const lines   = pdfData.text.split('\n').map((l) => l.trim()).filter((l) => l.length > 5);
 
       const parsed = [];
       for (const line of lines) {
-        // Skip header lines, summary lines, page footers
         if (/date|title|type|category|note|amount|expensepro|xpensepro|report|balance|income|expense|page \d/i.test(line) && !/₹/.test(line)) continue;
         if (/generated|report for|total records/i.test(line)) continue;
 
@@ -92,7 +118,6 @@ const importFromPDF = [
         if (tx) parsed.push(tx);
       }
 
-      // Deduplicate by title+amount+date
       const seen   = new Set();
       const unique = parsed.filter((t) => {
         const key = `${t.title}-${t.amount}-${t.date}`;
