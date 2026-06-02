@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: expensepro-api
+    env: node
+    region: singapore
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRE
+        value: 30d
+      - key: ALLOWED_ORIGINS
+        sync: false
