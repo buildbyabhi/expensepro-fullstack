@@ -1,135 +1,34 @@
-# 💰 ExpensePro — Full Stack Expense Tracker
+﻿# ðŸ’° ExpensePro - Full Stack Expense Tracker
 
-A premium full-stack expense tracking application with beautiful dark glassmorphism UI, JWT authentication, MongoDB Atlas database, and interactive charts.
+<div align="center">
+  <a href="https://expensepro-fullstack.vercel.app">
+    <img src="https://img.shields.io/badge/Live_Demo-Visit_Website-0055FF?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+</div>
 
----
+## ðŸ“– Overview
+ExpensePro is a premium, full-stack expense tracking web application. It features a modern dark glassmorphism UI, robust JWT authentication, and interactive analytics to help users manage their personal finances effectively.
 
-## 🚀 Tech Stack
+## âœ¨ Features
+- **Secure Authentication**: User signup and login powered by JSON Web Tokens (JWT).
+- **Expense Management**: Add, edit, and delete transactions.
+- **Analytics & Charts**: Visual data representation using Recharts (Pie, Bar, Area charts).
+- **19+ Categories**: Detailed categorization for precise tracking.
+- **Responsive Design**: Mobile-friendly layout with glassmorphism aesthetics.
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 19 + Vite |
-| Styling | Tailwind CSS + Custom CSS (Glassmorphism) |
-| Backend | Node.js + Express |
-| Database | MongoDB Atlas (Mongoose) |
-| Charts | Recharts (Pie, Bar, Area) |
-| Authentication | JWT (JSON Web Tokens) |
-| Currency | ₹ Indian Rupee (INR) |
+## ðŸ› ï¸ Tech Stack
+- **Frontend**: React 19, JavaScript, CSS3
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB Atlas
+- **Hosting**: Vercel
 
----
+## ðŸš€ Getting Started
+1. Clone the repository: git clone https://github.com/buildbyabhi/expensepro-fullstack.git
+2. Install dependencies for both frontend and backend: 
+pm install
+3. Set up .env variables for MongoDB URI and JWT Secret.
+4. Run the development server: 
+pm run dev
 
-## ⚙️ Setup Instructions
-
-### Step 1: Configure MongoDB Atlas
-
-1. Go to [MongoDB Atlas](https://cloud.mongodb.com)
-2. Create a free cluster
-3. Get your connection string: `mongodb+srv://username:password@cluster.mongodb.net/expensepro`
-4. Open `server/.env` and replace `MONGO_URI`:
-```
-MONGO_URI=mongodb+srv://yourUsername:yourPassword@cluster.mongodb.net/expensepro?retryWrites=true&w=majority
-```
-
-### Step 2: Start the Backend
-
-Open a terminal in the project root:
-```bash
-cd server
-node server.js
-```
-
-You should see:
-```
-✅ MongoDB Atlas connected
-🚀 Server running on http://localhost:5000
-```
-
-### Step 3: Start the Frontend
-
-Open another terminal:
-```bash
-cd client
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
-
-## 📁 Project Structure
-
-```
-expense-tracker/
-│
-├── client/                    # React + Vite Frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── BalanceCard.jsx
-│   │   │   ├── ExpenseForm.jsx
-│   │   │   ├── TransactionList.jsx
-│   │   │   ├── ChartSection.jsx
-│   │   │   └── CategoryBadge.jsx
-│   │   ├── pages/
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   └── Dashboard.jsx
-│   │   ├── context/
-│   │   │   ├── AuthContext.jsx
-│   │   │   └── TransactionContext.jsx
-│   │   ├── hooks/
-│   │   │   └── useLocalStorage.js
-│   │   ├── utils/
-│   │   │   ├── formatCurrency.js
-│   │   │   └── categories.js
-│   │   └── index.css
-│   └── vite.config.js
-│
-└── server/                    # Node.js + Express Backend
-    ├── models/
-    │   ├── User.js
-    │   └── Transaction.js
-    ├── routes/
-    │   ├── auth.js
-    │   └── transactions.js
-    ├── controllers/
-    │   ├── authController.js
-    │   └── transactionController.js
-    ├── middleware/
-    │   └── auth.js
-    ├── server.js
-    └── .env                   ← Add your MONGO_URI here!
-```
-
----
-
-## ✨ Features
-
-- 🔐 **JWT Authentication** — Register, Login, Logout
-- 💰 **Add Income & Expenses** — With 19 categories
-- 🗑️ **Delete Transactions** — With confirmation
-- 🔍 **Search & Filter** — By type (All/Income/Expense)
-- 📊 **3 Chart Types** — Category Pie, Monthly Bar, Spending Trend Area
-- 💳 **Balance Dashboard** — Live income, expense, balance with savings rate bar
-- 📱 **Fully Responsive** — Mobile + Desktop layouts
-- 🎨 **Dark Glassmorphism UI** — Premium animated design
-
----
-
-## 🛡️ API Endpoints
-
-### Auth
-| Method | URL | Access |
-|--------|-----|--------|
-| POST | `/api/auth/register` | Public |
-| POST | `/api/auth/login` | Public |
-| GET | `/api/auth/me` | Private |
-
-### Transactions
-| Method | URL | Access |
-|--------|-----|--------|
-| GET | `/api/transactions` | Private |
-| POST | `/api/transactions` | Private |
-| DELETE | `/api/transactions/:id` | Private |
-| GET | `/api/transactions/stats/monthly` | Private |
-| GET | `/api/transactions/stats/categories` | Private |
+## ðŸ¤ Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
