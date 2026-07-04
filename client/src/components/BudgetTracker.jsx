@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { CATEGORIES } from '../utils/categories';
 import { Target, Edit3, Check, X, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useCurrency } from '../context/CurrencyContext';
 import toast from 'react-hot-toast';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const BudgetTracker = () => {
   const { api } = useAuth();
+  const { formatAmount } = useCurrency();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year,  setYear]  = useState(now.getFullYear());
@@ -115,11 +117,11 @@ const BudgetTracker = () => {
                 <div className="budget-label">Total Budget</div>
                 <div className="budget-amounts">
                   <span className={`budget-spent ${overBudget ? 'budget-over' : ''}`}>
-                    ₹{totalSpent.toLocaleString('en-IN')}
+                    {formatAmount(totalSpent)}
                   </span>
                   <span className="budget-slash"> / </span>
                   <span className="budget-limit">
-                    ₹{totalBudget > 0 ? totalBudget.toLocaleString('en-IN') : '—'}
+                    {totalBudget > 0 ? formatAmount(totalBudget) : '—'}
                   </span>
                 </div>
               </div>
@@ -130,7 +132,7 @@ const BudgetTracker = () => {
               )}
               {!overBudget && totalBudget > 0 && (
                 <div className="budget-remaining">
-                  ₹{(totalBudget - totalSpent).toLocaleString('en-IN')} left
+                  {formatAmount(totalBudget - totalSpent)} left
                 </div>
               )}
             </div>
@@ -174,8 +176,8 @@ const BudgetTracker = () => {
                     />
                   ) : (
                     <span className={`budget-cat-spent ${catOver ? 'budget-over' : ''}`}>
-                      ₹{catSpent.toLocaleString('en-IN')}
-                      {catBudget > 0 && <span className="budget-cat-limit"> / ₹{Number(catBudget).toLocaleString('en-IN')}</span>}
+                      {formatAmount(catSpent)}
+                      {catBudget > 0 && <span className="budget-cat-limit"> / {formatAmount(Number(catBudget))}</span>}
                     </span>
                   )}
                 </div>

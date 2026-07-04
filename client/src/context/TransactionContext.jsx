@@ -8,14 +8,28 @@ export const TransactionProvider = ({ children, isAuthenticated }) => {
   const [summary, setSummary] = useState({ totalIncome: 0, totalExpense: 0, balance: 0 });
   const [monthlyData, setMonthlyData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+  const [globalCategories, setGlobalCategories] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const changeMonth = useCallback((offset) => {
+    setSelectedDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() + offset);
+      return newDate;
+    });
+  }, []);
 
   const fetchTransactions = useCallback(async () => {
     if (!isAuthenticated) return;
     setLoading(true);
     try {
-      const { data } = await api.get('/transactions?limit=200');
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth();
+      const startDate = new Date(year, month, 1).toISOString();
+      const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+      const { data } = await api.get(`/transactions?limit=200&startDate=${startDate}&endDate=${endDate}`);
       if (data.success) {
         setTransactions(data.data);
         setSummary(data.summary);
@@ -30,7 +44,7 @@ export const TransactionProvider = ({ children, isAuthenticated }) => {
   const fetchMonthlyStats = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
-      const year = new Date().getFullYear();
+      const year = selectedDate.getFullYear();
       const { data } = await api.get(`/transactions/stats/monthly?year=${year}`);
       if (data.success) setMonthlyData(data.data);
     } catch {}
@@ -44,16 +58,26 @@ export const TransactionProvider = ({ children, isAuthenticated }) => {
     } catch {}
   }, [isAuthenticated]);
 
+  const fetchCategoriesList = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const { data } = await api.get('/categories');
+      if (data.success) setGlobalCategories(data.categories);
+    } catch {}
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchTransactions();
       fetchMonthlyStats();
       fetchCategoryStats();
+      fetchCategoriesList();
     } else {
       setTransactions([]);
       setSummary({ totalIncome: 0, totalExpense: 0, balance: 0 });
+      setGlobalCategories([]);
     }
-  }, [isAuthenticated, fetchTransactions, fetchMonthlyStats, fetchCategoryStats]);
+  }, [isAuthenticated, selectedDate, fetchTransactions, fetchMonthlyStats, fetchCategoryStats, fetchCategoriesList]);
 
   const addTransaction = useCallback(async (transactionData) => {
     const { data } = await api.post('/transactions', transactionData);
@@ -84,6 +108,9 @@ export const TransactionProvider = ({ children, isAuthenticated }) => {
         summary,
         monthlyData,
         categoryData,
+        globalCategories,
+        selectedDate,
+        changeMonth,
         loading,
         error,
         addTransaction,
@@ -92,6 +119,7 @@ export const TransactionProvider = ({ children, isAuthenticated }) => {
           fetchTransactions();
           fetchMonthlyStats();
           fetchCategoryStats();
+          fetchCategoriesList();
         },
       }}
     >

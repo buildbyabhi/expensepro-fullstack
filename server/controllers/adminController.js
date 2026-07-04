@@ -1,5 +1,6 @@
 const User        = require('../models/User');
 const Transaction = require('../models/Transaction');
+const Category    = require('../models/Category');
 
 // ── Admin Stats ───────────────────────────────────────────────────────────────
 const getAdminStats = async (req, res) => {
@@ -22,6 +23,7 @@ const getAdminStats = async (req, res) => {
       id: u._id,
       name: u.name,
       email: u.email,
+      isAdmin: u.isAdmin,
       isVerified: u.isVerified,
       joinedAt: u.createdAt,
       transactions: txMap[u._id.toString()]?.count || 0,
@@ -52,4 +54,46 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAdminStats, deleteUser };
+// ── Toggle User Role (Admin) ────────────────────────────────────────────────────
+const updateUserRole = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Cannot demote yourself' });
+    }
+    user.isAdmin = !user.isAdmin;
+    await user.save();
+    res.json({ success: true, message: `User is now ${user.isAdmin ? 'Admin' : 'User'}` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── Add Category ──────────────────────────────────────────────────────────────
+const addCategory = async (req, res) => {
+  try {
+    const { name, type, color, icon } = req.body;
+    if (!name || !type) return res.status(400).json({ success: false, message: 'Name and type are required' });
+    
+    const category = await Category.create({ name, type, color, icon });
+    res.status(201).json({ success: true, category });
+  } catch (error) {
+    if (error.code === 11000) return res.status(400).json({ success: false, message: 'Category already exists' });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── Delete Category ───────────────────────────────────────────────────────────
+const deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+    await category.deleteOne();
+    res.json({ success: true, message: 'Category deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { getAdminStats, deleteUser, updateUserRole, addCategory, deleteCategory };

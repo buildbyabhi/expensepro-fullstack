@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { CATEGORIES } from '../utils/categories';
 import { PlusCircle, DollarSign, Tag, FileText, Calendar, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ExpenseForm = () => {
-  const { addTransaction } = useTransactions();
+  const { addTransaction, globalCategories } = useTransactions();
   const [type, setType] = useState('expense');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -14,7 +13,9 @@ const ExpenseForm = () => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
 
-  const categories = CATEGORIES[type];
+  const categories = useMemo(() => {
+    return globalCategories.filter(c => c.type === type) || [];
+  }, [globalCategories, type]);
 
   const resetForm = () => {
     setTitle('');
@@ -103,7 +104,7 @@ const ExpenseForm = () => {
             <Tag size={14} /> Category
           </label>
           <div className="category-grid">
-            {categories.map((cat) => (
+            {categories.length === 0 ? <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No categories found</p> : categories.map((cat) => (
               <button
                 key={cat.name}
                 type="button"
@@ -111,7 +112,7 @@ const ExpenseForm = () => {
                 style={category === cat.name ? { borderColor: cat.color, backgroundColor: `${cat.color}22` } : {}}
                 onClick={() => setCategory(cat.name)}
               >
-                <span>{cat.icon}</span>
+                <Tag size={12} style={{ color: cat.color, marginRight: '4px' }} />
                 <span className="category-chip-label">{cat.name}</span>
               </button>
             ))}

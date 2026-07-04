@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useTransactions } from '../context/TransactionContext';
-import { formatCurrency, formatDate } from '../utils/formatCurrency';
+import { useCurrency } from '../context/CurrencyContext';
+import { formatDate } from '../utils/formatCurrency';
 import CategoryBadge from './CategoryBadge';
 import { Trash2, Search, Filter, TrendingUp, TrendingDown, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const TransactionList = () => {
   const { transactions, deleteTransaction, loading } = useTransactions();
+  const { formatAmount } = useCurrency();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [deleting, setDeleting] = useState(null);
@@ -103,7 +105,7 @@ const TransactionList = () => {
             </div>
             <div className="transaction-right">
               <span className={`transaction-amount transaction-amount--${t.type}`}>
-                {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                {t.type === 'income' ? '+' : '-'}{formatAmount(t.amount)}
               </span>
               <button
                 className="delete-btn"

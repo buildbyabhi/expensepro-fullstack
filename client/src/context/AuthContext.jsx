@@ -59,12 +59,21 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     const { data } = await api.post('/auth/login', { email, password });
     if (data.success) {
+      if (data.requires2FA) {
+        return data; // Return the 2FA requirement to the component
+      }
       localStorage.setItem('expense_token', data.token);
       setToken(data.token);
       setUser(data.user);
-      return true;
+      return data;
     }
     throw new Error(data.message);
+  }, []);
+
+  const completeLogin = useCallback((userData, tokenData) => {
+    localStorage.setItem('expense_token', tokenData);
+    setToken(tokenData);
+    setUser(userData);
   }, []);
 
   const logout = useCallback(() => {
@@ -74,7 +83,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, register, login, logout, api }}>
+    <AuthContext.Provider value={{ user, token, loading, error, register, login, completeLogin, logout, api }}>
       {children}
     </AuthContext.Provider>
   );

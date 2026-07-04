@@ -31,13 +31,11 @@ const Register = () => {
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
       
-      // Auto-login: Save token and reload auth state
-      localStorage.setItem('expense_token', json.token);
-      toast.success('Account created! Welcome to XpensePro 🎉');
+      // OTP is sent, navigate to verification screen
+      toast.success('Account created! Please check your email for the OTP.');
       
-      // Navigate to dashboard and refresh page or context
-      navigate('/dashboard');
-      window.location.reload();
+      // Navigate to verify-email and pass the email address
+      navigate('/verify-email', { state: { email } });
     } catch (err) {
       toast.error(err.message || 'Registration failed');
     } finally {

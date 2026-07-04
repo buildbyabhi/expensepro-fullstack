@@ -24,10 +24,22 @@ const UserSchema = new mongoose.Schema(
     },
     avatar: { type: String, default: '' },
     currency: { type: String, default: 'INR' },
-    isVerified: { type: Boolean, default: false },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    tfaSecret: {
+      type: String,
+    },
+    isTfaEnabled: {
+      type: Boolean,
+      default: false,
+    },
     isAdmin: { type: Boolean, default: false },
     otp: { type: String, select: false },
     otpExpiry: { type: Date, select: false },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );

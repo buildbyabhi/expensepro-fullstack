@@ -3,11 +3,15 @@ import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TransactionProvider } from './context/TransactionContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import VerifyEmail from './pages/VerifyEmail';
 import AdminPanel from './pages/AdminPanel';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -42,6 +46,14 @@ const AppRoutes = () => {
           path="/register"
           element={<PublicRoute><Register /></PublicRoute>}
         />
+        <Route
+          path="/forgot-password"
+          element={<PublicRoute><ForgotPassword /></PublicRoute>}
+        />
+        <Route
+          path="/reset-password/:token"
+          element={<PublicRoute><ResetPassword /></PublicRoute>}
+        />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/dashboard"
@@ -60,24 +72,28 @@ const AppRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1e1e3a',
-              color: '#e2e8f0',
-              border: '1px solid rgba(129,140,248,0.2)',
-              borderRadius: '12px',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
-            },
-            success: { iconTheme: { primary: '#22c55e', secondary: '#1e1e3a' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#1e1e3a' } },
-          }}
-        />
-        <Analytics />
-      </AuthProvider>
+      <ThemeProvider>
+        <CurrencyProvider>
+          <AuthProvider>
+            <AppRoutes />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: '#1e1e3a',
+                  color: '#e2e8f0',
+                  border: '1px solid rgba(129,140,248,0.2)',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
+                },
+                success: { iconTheme: { primary: '#22c55e', secondary: '#1e1e3a' } },
+                error: { iconTheme: { primary: '#ef4444', secondary: '#1e1e3a' } },
+              }}
+            />
+            <Analytics />
+          </AuthProvider>
+        </CurrencyProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

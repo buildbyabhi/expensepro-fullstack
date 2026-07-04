@@ -33,6 +33,28 @@
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+[data-theme="light"] {
+  --bg-base:       #f8fafc;
+  --bg-surface:    #ffffff;
+  --bg-elevated:   #f1f5f9;
+  --glass-bg:      rgba(255, 255, 255, 0.9);
+  --glass-border:  rgba(0, 0, 0, 0.08);
+  --glass-hover:   rgba(0, 0, 0, 0.04);
+
+  --accent:        #6366f1;
+  --accent-glow:   rgba(99, 102, 241, 0.25);
+  --income:        #16a34a;
+  --income-glow:   rgba(22, 163, 74, 0.2);
+  --expense:       #dc2626;
+  --expense-glow:  rgba(220, 38, 38, 0.2);
+
+  --text-primary:  #0f172a;
+  --text-secondary:#475569;
+  --text-muted:    #94a3b8;
+
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
 /* ═══════════════════════════════════════════════════
    BASE
    ═══════════════════════════════════════════════════ */

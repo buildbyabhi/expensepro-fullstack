@@ -1,7 +1,12 @@
 import { getCategoryMeta } from '../utils/categories';
+import { useTransactions } from '../context/TransactionContext';
 
 const CategoryBadge = ({ category, size = 'sm' }) => {
-  const meta = getCategoryMeta(category);
+  const { globalCategories } = useTransactions();
+  
+  // Try dynamic global categories first, fallback to hardcoded, then generic
+  const dynamicMatch = globalCategories?.find(c => c.name === category);
+  const meta = dynamicMatch || getCategoryMeta(category);
 
   return (
     <span

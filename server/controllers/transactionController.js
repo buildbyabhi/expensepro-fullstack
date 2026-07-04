@@ -27,11 +27,11 @@ const getTransactions = async (req, res) => {
     const total = await Transaction.countDocuments(filter);
 
     // Calculate summary
-    const all = await Transaction.find({ user: req.user._id });
-    const totalIncome = all
+    const allFiltered = await Transaction.find(filter);
+    const totalIncome = allFiltered
       .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
-    const totalExpense = all
+    const totalExpense = allFiltered
       .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
 
