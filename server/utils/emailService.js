@@ -1,14 +1,27 @@
 const dns = require('dns');
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
-  },
+let transporter;
+
+// Resolve IPv4 address of Gmail SMTP to bypass Render's IPv6 blocking
+dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+  if (!err && address) {
+    transporter = nodemailer.createTransport({
+      host: address,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
+      tls: {
+        servername: 'smtp.gmail.com', // Needed for valid SSL cert
+        rejectUnauthorized: false
+      }
+    });
+  } else {
+    console.error('DNS Lookup failed for smtp.gmail.com:', err);
+  }
 });
 
 // Generate 6-digit OTP
