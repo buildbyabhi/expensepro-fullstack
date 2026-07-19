@@ -1,28 +1,29 @@
 const dns = require('dns');
 const nodemailer = require('nodemailer');
 
-let transporter;
+let transporter = null;
 
-// Resolve IPv4 address of Gmail SMTP to bypass Render's IPv6 blocking
-dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
-  if (!err && address) {
-    transporter = nodemailer.createTransport({
-      host: address,
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
-      },
-      tls: {
-        servername: 'smtp.gmail.com', // Needed for valid SSL cert
-        rejectUnauthorized: false
-      }
+const getTransporter = async () => {
+  if (transporter) return transporter;
+  return new Promise((resolve) => {
+    dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+      transporter = nodemailer.createTransport({
+        host: (!err && address) ? address : 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.SMTP_EMAIL,
+          pass: process.env.SMTP_PASSWORD,
+        },
+        tls: {
+          servername: 'smtp.gmail.com',
+          rejectUnauthorized: false
+        }
+      });
+      resolve(transporter);
     });
-  } else {
-    console.error('DNS Lookup failed for smtp.gmail.com:', err);
-  }
-});
+  });
+};
 
 // Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -55,7 +56,8 @@ const sendOTPEmail = async (email, name, otp) => {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const t = await getTransporter();
+  await t.sendMail(mailOptions);
 };
 
 // Send Password Reset Email
@@ -86,7 +88,8 @@ const sendResetPasswordEmail = async (email, name, resetUrl) => {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const t = await getTransporter();
+  await t.sendMail(mailOptions);
 };
 
 module.exports = { generateOTP, sendOTPEmail, sendResetPasswordEmail };
