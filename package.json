@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Full-stack Expense Tracking System — React + Vite + Node.js + MongoDB",
   "scripts": {
+    "build": "cd server && npm install",
+    "start": "cd server && node server.js",
     "client": "cd client && npm run dev",
     "server": "cd server && node server.js",
     "dev:server": "cd server && npx nodemon server.js",
