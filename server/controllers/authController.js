@@ -194,7 +194,7 @@ const resetPassword = async (req, res) => {
     }
 
     // Get hashed token
-    const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
+    const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
 
     const user = await User.findOne({
       resetPasswordToken,

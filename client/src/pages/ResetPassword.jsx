@@ -17,7 +17,7 @@ const ResetPassword = () => {
     
     setLoading(true);
     try {
-      const { data } = await api.put(`/auth/resetpassword/${token}`, { password });
+      const { data } = await api.put(`/auth/reset-password/${token}`, { password });
       if (data.success) {
         toast.success('Password reset successfully! You can now log in.');
         navigate('/login');
