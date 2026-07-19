@@ -1,60 +1,27 @@
-// We removed Nodemailer because Render's free tier blocks SMTP (ports 465/587).
-// Instead, we use an HTTP API (Brevo/Sendinblue) to send emails which uses port 443.
+const { Resend } = require('resend');
+
+// Initialize Resend with the API key from environment variables
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const sendEmailAPI = async (toEmail, toName, subject, htmlContent) => {
-  // Use BREVO_API_KEY from env, or fallback to RESEND_API_KEY if you choose Resend
-  const brevoKey = process.env.BREVO_API_KEY;
-  const resendKey = process.env.RESEND_API_KEY;
-
-  if (brevoKey) {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'api-key': brevoKey,
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        sender: { name: 'XpensePro', email: process.env.SMTP_EMAIL || 'support@xpensepro.com' },
-        to: [{ email: toEmail, name: toName }],
-        subject: subject,
-        htmlContent: htmlContent
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Brevo API Error: ${err}`);
-    }
-    return;
-  } 
-  
-  if (resendKey) {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        // For Resend free tier, you MUST use onboarding@resend.dev unless you verify a custom domain
-        from: 'XpensePro <onboarding@resend.dev>',
-        to: [toEmail],
-        subject: subject,
-        html: htmlContent
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`Resend API Error: ${err}`);
-    }
-    return;
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is missing in environment variables');
   }
 
-  throw new Error('No Email API Key provided! Please set BREVO_API_KEY or RESEND_API_KEY in your environment variables.');
+  const { data, error } = await resend.emails.send({
+    from: 'XpensePro <onboarding@resend.dev>',
+    to: toEmail,
+    subject: subject,
+    html: htmlContent
+  });
+
+  if (error) {
+    throw new Error(`Resend API Error: ${error.message}`);
+  }
+
+  return data;
 };
 
 // Send OTP email
