@@ -6,6 +6,7 @@ export const CATEGORIES = {
     { name: 'Washing Machine', icon: '🧺', color: '#06b6d4' },
     { name: 'Miscellaneous', icon: '🌀', color: '#6366f1' },
     { name: 'Food & Dining', icon: '🍽️', color: '#f97316' },
+    { name: 'Groceries', icon: '🥦', color: '#22c55e' },
     { name: 'Transportation', icon: '🚗', color: '#3b82f6' },
     { name: 'Shopping', icon: '🛒', color: '#84cc16' },
     { name: 'Entertainment', icon: '🎬', color: '#f43f5e' },
