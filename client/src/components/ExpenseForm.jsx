@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTransactions } from '../context/TransactionContext';
+import { CATEGORIES } from '../utils/categories';
 import { PlusCircle, DollarSign, Tag, FileText, Calendar, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -14,7 +15,8 @@ const ExpenseForm = () => {
   const [loading, setLoading] = useState(false);
 
   const categories = useMemo(() => {
-    return globalCategories.filter(c => c.type === type) || [];
+    const dbCats = globalCategories.filter(c => c.type === type);
+    return dbCats.length > 0 ? dbCats : CATEGORIES[type];
   }, [globalCategories, type]);
 
   const resetForm = () => {
@@ -112,7 +114,11 @@ const ExpenseForm = () => {
                 style={category === cat.name ? { borderColor: cat.color, backgroundColor: `${cat.color}22` } : {}}
                 onClick={() => setCategory(cat.name)}
               >
-                <Tag size={12} style={{ color: cat.color, marginRight: '4px' }} />
+                {cat.icon && !cat.icon.match(/^[a-zA-Z]+$/) ? (
+                  <span style={{ marginRight: '4px' }}>{cat.icon}</span>
+                ) : (
+                  <Tag size={12} style={{ color: cat.color, marginRight: '4px' }} />
+                )}
                 <span className="category-chip-label">{cat.name}</span>
               </button>
             ))}
