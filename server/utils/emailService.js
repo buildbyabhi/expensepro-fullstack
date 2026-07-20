@@ -1,4 +1,7 @@
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const createTransporter = () => {
   return nodemailer.createTransport({
@@ -15,12 +18,7 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 // Send OTP email
 const sendOTPEmail = async (email, name, otp) => {
-  const transporter = createTransporter();
-  const mailOptions = {
-    from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
-    to: email,
-    subject: '🔐 Verify Your XpensePro Account',
-    html: `
+  const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #0f0f1e; color: #fff; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #818cf8, #a78bfa); padding: 30px; text-align: center;">
           <h1 style="margin: 0; font-size: 28px;">💰 XpensePro</h1>
@@ -39,20 +37,29 @@ const sendOTPEmail = async (email, name, otp) => {
           <p style="color: #64748b; margin: 0; font-size: 12px;">© 2026 XpensePro. All rights reserved.</p>
         </div>
       </div>
-    `,
-  };
+    `;
 
-  await transporter.sendMail(mailOptions);
+  if (resend) {
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '🔐 Verify Your XpensePro Account',
+      html: htmlContent
+    });
+  } else {
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
+      to: email,
+      subject: '🔐 Verify Your XpensePro Account',
+      html: htmlContent
+    });
+  }
 };
 
 // Send Password Reset Email
 const sendResetPasswordEmail = async (email, name, resetUrl) => {
-  const transporter = createTransporter();
-  const mailOptions = {
-    from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
-    to: email,
-    subject: '🔒 Reset Your XpensePro Password',
-    html: `
+  const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #0f0f1e; color: #fff; border-radius: 12px; overflow: hidden;">
         <div style="background: linear-gradient(135deg, #f43f5e, #fb7185); padding: 30px; text-align: center;">
           <h1 style="margin: 0; font-size: 28px;">💰 XpensePro</h1>
@@ -71,10 +78,24 @@ const sendResetPasswordEmail = async (email, name, resetUrl) => {
           <p style="color: #64748b; margin: 0; font-size: 12px;">© 2026 XpensePro. All rights reserved.</p>
         </div>
       </div>
-    `,
-  };
+    `;
 
-  await transporter.sendMail(mailOptions);
+  if (resend) {
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: '🔒 Reset Your XpensePro Password',
+      html: htmlContent
+    });
+  } else {
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
+      to: email,
+      subject: '🔒 Reset Your XpensePro Password',
+      html: htmlContent
+    });
+  }
 };
 
 module.exports = { generateOTP, sendOTPEmail, sendResetPasswordEmail };
