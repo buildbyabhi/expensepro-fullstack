@@ -75,7 +75,7 @@ const sendOTPEmail = async (email, name, otp) => {
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: \`"XpensePro" <\${process.env.SMTP_EMAIL}>\`,
+      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
       to: email,
       subject: '🔐 Verify Your XpensePro Account',
       html: htmlContent
@@ -119,7 +119,7 @@ const sendResetPasswordEmail = async (email, name, resetUrl) => {
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: \`"XpensePro" <\${process.env.SMTP_EMAIL}>\`,
+      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
       to: email,
       subject: '🔒 Reset Your XpensePro Password',
       html: htmlContent
