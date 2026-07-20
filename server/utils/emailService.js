@@ -13,6 +13,29 @@ const createTransporter = () => {
   });
 };
 
+// Helper function for Brevo HTTP API
+const sendViaBrevo = async (to, subject, htmlContent) => {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: { name: 'XpensePro', email: process.env.SMTP_EMAIL || 'noreply@expensepro.com' },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: htmlContent
+    })
+  });
+  
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Brevo API Error');
+  }
+};
+
 // Generate 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -39,20 +62,20 @@ const sendOTPEmail = async (email, name, otp) => {
       </div>
     `;
 
-  if (resend) {
+  if (process.env.BREVO_API_KEY) {
+    await sendViaBrevo(email, '🔐 Verify Your XpensePro Account', htmlContent);
+  } else if (resend) {
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
       subject: '🔐 Verify Your XpensePro Account',
       html: htmlContent
     });
-    if (error) {
-      throw new Error(error.message || 'Resend API Error');
-    }
+    if (error) throw new Error(error.message || 'Resend API Error');
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
+      from: \`"XpensePro" <\${process.env.SMTP_EMAIL}>\`,
       to: email,
       subject: '🔐 Verify Your XpensePro Account',
       html: htmlContent
@@ -83,20 +106,20 @@ const sendResetPasswordEmail = async (email, name, resetUrl) => {
       </div>
     `;
 
-  if (resend) {
+  if (process.env.BREVO_API_KEY) {
+    await sendViaBrevo(email, '🔒 Reset Your XpensePro Password', htmlContent);
+  } else if (resend) {
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
       subject: '🔒 Reset Your XpensePro Password',
       html: htmlContent
     });
-    if (error) {
-      throw new Error(error.message || 'Resend API Error');
-    }
+    if (error) throw new Error(error.message || 'Resend API Error');
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
-      from: `"XpensePro" <${process.env.SMTP_EMAIL}>`,
+      from: \`"XpensePro" <\${process.env.SMTP_EMAIL}>\`,
       to: email,
       subject: '🔒 Reset Your XpensePro Password',
       html: htmlContent
