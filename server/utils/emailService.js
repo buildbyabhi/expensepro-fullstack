@@ -40,12 +40,15 @@ const sendOTPEmail = async (email, name, otp) => {
     `;
 
   if (resend) {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
       subject: '🔐 Verify Your XpensePro Account',
       html: htmlContent
     });
+    if (error) {
+      throw new Error(error.message || 'Resend API Error');
+    }
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
@@ -81,12 +84,15 @@ const sendResetPasswordEmail = async (email, name, resetUrl) => {
     `;
 
   if (resend) {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: email,
       subject: '🔒 Reset Your XpensePro Password',
       html: htmlContent
     });
+    if (error) {
+      throw new Error(error.message || 'Resend API Error');
+    }
   } else {
     const transporter = createTransporter();
     await transporter.sendMail({
